@@ -26,9 +26,9 @@
                         policyVersionId: UUID(), policyVersion: "synthetic", caloriesKcal: "2400",
                         caloriesGoalKind: "target", proteinG: "130", proteinGoalKind: "floor"), consumedItemCount: 3,
                     knownCaloriesConsumed: "1480", knownProteinGConsumed: "92", remainingKnownCalories: "920",
-                    remainingKnownProteinG: "38", nutritionCompleteness: .partial,
+                    remainingKnownProteinG: "38", nutritionCompleteness: .complete,
                     nutritionAuthorities: [.externalReference],
-                    unknownNutrients: ["fiber_g"], consumedItems: [], reasonCodes: ["nutrition_partial"])
+                    unknownNutrients: [], consumedItems: [], reasonCodes: [])
             }
             func fetchDayPlan(date: Date) async throws -> DayPlanResponse {
                 let day = WireDay.string(from: date)
@@ -85,7 +85,7 @@
             func fetchExerciseHistory(
                 sourceExerciseId: String, sourceSystem: String, asOfDate: Date, timezone: String, limit: Int
             ) async throws -> ExerciseTrainingHistoryResponse {
-                await TrainingViewModelTests.history
+                Self.coachableHistory
             }
             func fetchReviewSnapshot(asOfDate: Date, timezone: String) async throws -> OnDeviceReviewSnapshot {
                 await OnDeviceReviewSnapshot(
@@ -94,6 +94,114 @@
                         goal: "gain", weightEvidence: "stale", nutritionEvidence: "recorded_partial",
                         calorieTargetAvailable: true, proteinTargetAvailable: true, nextMeal: "unavailable",
                         includesEstimates: true, limitation: "Only recorded evidence is known."))
+            }
+
+            // Two comparable Cable Row sessions: identical top-set load with one
+            // extra top-set rep in the latest session, three working sets each,
+            // no failure sets, moderate RPE.
+            //
+            // The coaching block below is NOT authored copy. It is the exact
+            // output the production deterministic engine
+            // (`domain/training/analytics.py`, `owner-training-coaching.v1`)
+            // produces for this evidence: progress / add_one_top_set_rep_same_load
+            // with an 11-rep target at the same load. The comparison deltas and
+            // volume figures are likewise the engine's computed values.
+            private static let coachableHistory = ExerciseTrainingHistoryResponse(
+                policyVersion: "owner-training-analytics.v1",
+                sourceSystem: "hevy",
+                sourceExerciseId: "fixture-row",
+                latestDisplayName: "Cable Row",
+                history: [latestRowPoint, previousRowPoint],
+                latest: latestRowPoint,
+                previous: previousRowPoint,
+                comparison: ExerciseSessionComparisonDTO(
+                    latestRevisionId: "00000000-0000-0000-0000-000000000002",
+                    previousRevisionId: "00000000-0000-0000-0000-000000000001",
+                    workingSetCountDelta: 0,
+                    topLoadDeltaKg: "0E-14",
+                    repsAtSameTopLoadDelta: 1,
+                    volumeDeltaKgReps: "72.57486550970236",
+                    reasonCodes: []
+                ),
+                frequency: ExerciseFrequencyDTO(
+                    timezone: "America/New_York",
+                    asOfDate: "2026-09-04",
+                    sessionsLast7Days: 1,
+                    sessionsLast28Days: 2,
+                    daysSinceLastPerformance: 0
+                ),
+                prEvidence: [],
+                completeness: TrainingHistoryCompletenessDTO(
+                    sourceBootstrapComplete: true,
+                    queryComplete: true,
+                    lifetimeGuaranteed: false,
+                    wording: "PR within synced Hevy history; Hevy lifetime completeness is not guaranteed."
+                ),
+                coaching: ExerciseCoachingGuidanceDTO(
+                    policyVersion: "owner-training-coaching.v1",
+                    analyticsPolicyVersion: "owner-training-analytics.v1",
+                    timezone: "America/New_York",
+                    asOfDate: "2026-09-04",
+                    status: "progress",
+                    action: "add_one_top_set_rep_same_load",
+                    metricFamily: "rep_load",
+                    latestRevisionId: "00000000-0000-0000-0000-000000000002",
+                    previousRevisionId: "00000000-0000-0000-0000-000000000001",
+                    latestStartedAt: latestRowStartedAt,
+                    previousStartedAt: previousRowStartedAt,
+                    target: TrainingCoachingTargetDTO(
+                        workingSetCount: 3,
+                        topLoadKg: "36.28743275485118",
+                        topSetReps: 11,
+                        totalReps: nil,
+                        keepAssistanceConstant: false
+                    ),
+                    reasonCodes: ["comparable_performance_supports_rep_progression"],
+                    limitations: [
+                        "advisory_only",
+                        "no_form_recovery_or_pain_evidence",
+                        "no_program_rep_range_or_equipment_increment",
+                        "within_synced_hevy_history_not_lifetime",
+                    ]
+                )
+            )
+
+            private static let previousRowStartedAt = Date(timeIntervalSince1970: 1_788_357_600)
+            private static let latestRowStartedAt = Date(timeIntervalSince1970: 1_788_962_400)
+
+            private static let previousRowPoint = rowPoint(
+                revision: 1, session: 1, title: "Pull 1", startedAt: previousRowStartedAt,
+                topReps: 9, repTotal: 26, volume: "943.47325162613068")
+            private static let latestRowPoint = rowPoint(
+                revision: 2, session: 2, title: "Pull 2", startedAt: latestRowStartedAt,
+                topReps: 10, repTotal: 28, volume: "1016.04811713583304")
+
+            private static func rowPoint(
+                revision: Int, session: Int, title: String, startedAt: Date,
+                topReps: Int, repTotal: Int, volume: String
+            ) -> ExerciseHistoryPointDTO {
+                ExerciseHistoryPointDTO(
+                    revisionId: "00000000-0000-0000-0000-00000000000\(revision)",
+                    sourceSessionId: "session-\(session)",
+                    sourceRevision: "revision-\(session)",
+                    sessionTitle: title,
+                    startedAt: startedAt,
+                    displayName: "Cable Row",
+                    occurrenceCount: 1,
+                    metricFamily: "rep_load",
+                    recordedSetCount: 3,
+                    workingSetCount: 3,
+                    warmupSetCount: 0,
+                    unsupportedSetCount: 0,
+                    repTotal: repTotal,
+                    maxLoadKg: "36.28743275485118",
+                    topLoadSet: TopLoadSetEvidenceDTO(
+                        setIdentity: "set:0", setIndex: 0, setType: "normal",
+                        reps: topReps, loadKg: "36.28743275485118", rpe: "8"),
+                    volumeKgReps: volume,
+                    maxRpe: "8",
+                    metricCompleteness: "complete"
+                )
             }
 
             private static func slot(

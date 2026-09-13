@@ -12,9 +12,6 @@ integrates institutional dining data from Stacks Market with HealthKit, food log
 barcode products, training history, body-goal evidence, and deterministic nutrition
 logic to generate daily guidance.
 
-Optional on-device Apple Intelligence can explain the results, but it never determines
-the underlying facts or calculations.
-
 ```text
         INSTITUTIONAL DINING DATA
                     +
@@ -29,10 +26,6 @@ the underlying facts or calculations.
                     v
      OPTIONAL ON-DEVICE AI EXPLANATION
 ```
-
-> [!NOTE]
-> Nytr is an independent student project and is not affiliated with or endorsed by
-> The Pennsylvania State University.
 
 ---
 
@@ -68,10 +61,6 @@ in the UI.
 ---
 
 ## Screenshots
-
-Rendered from synthetic fixtures by the repository's own
-[`ProductRenderingTests`](ios/NutritionHealthCompanion/HealthSyncTests/ProductRenderingTests.swift).
-No personal health data appears in any image.
 
 ### Dark mode
 
@@ -389,6 +378,9 @@ Store release exists today.
 
 Production-validated personal project; this public repository contains a sanitized,
 reproducible version of the codebase.
+
+Nytr is an independent student project and is not affiliated with or endorsed by The
+Pennsylvania State University.
 
 Further reading: [architecture notes](docs/ARCHITECTURE.md) ·
 [nutrition engine](docs/NUTRITION_ENGINE.md) ·
