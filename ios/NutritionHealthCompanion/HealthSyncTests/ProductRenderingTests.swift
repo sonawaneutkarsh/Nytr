@@ -197,6 +197,17 @@
                     "training",
                     AnyView(TrainingView(viewModel: TrainingViewModel(backend: backend), subject: "synthetic-demo"))
                 ),
+                (
+                    "settings",
+                    AnyView(
+                        NavigationStack {
+                            SettingsView(
+                                appearance: .constant(.dark),
+                                healthSyncViewModel: health,
+                                notificationViewModel: MealGuidanceNotificationViewModel(),
+                                onSignOut: {})
+                        })
+                ),
                 ("review", AnyView(NavigationStack { AIReviewView(viewModel: review, subject: "synthetic-demo") })),
                 (
                     "review-analysis",
