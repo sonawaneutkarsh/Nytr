@@ -10,7 +10,7 @@ standalone configurable estimates before final ordering.
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import date, datetime, time
 from decimal import ROUND_HALF_EVEN, Decimal
 from enum import StrEnum
@@ -127,7 +127,7 @@ class SlotResult:
     status: PlannerStatus
     candidates: tuple[RankedCandidate, ...] = ()
     failure_reasons: tuple[ReasonCode, ...] = ()
-    rejection_counts: Mapping[str, int] = MappingProxyType({})
+    rejection_counts: Mapping[str, int] = field(default_factory=lambda: MappingProxyType({}))
     rejection_details: tuple[str, ...] = ()
 
 
