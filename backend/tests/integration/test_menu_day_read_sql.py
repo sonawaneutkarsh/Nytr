@@ -343,7 +343,7 @@ def test_reader_reconstructs_all_members_and_excludes_nonprofiles_from_planning(
     assert resolved.menu.snapshot_sha256 == expected
 
 
-def test_reader_reconstructs_all_99_retained_occurrences_and_five_source_states() -> None:
+def test_reader_reconstructs_all_99_retained_occurrences_and_five_nonprofile_states() -> None:
     _apply_migrations()
     from nutrition_agent.db.sql_repos import (
         SqlMenuDayReadRepository,
