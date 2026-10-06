@@ -1,5 +1,7 @@
 # Nytr
 
+[![CI](https://github.com/sonawaneutkarsh/Nytr/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/sonawaneutkarsh/Nytr/actions/workflows/ci.yml)
+
 **An evidence-driven nutrition and training companion built around Penn State dining.**
 
 Nytr began as a system for answering a deceptively difficult question:
@@ -258,8 +260,9 @@ Nothing outside its column is allowed to overwrite it.
   and its model downloaded. Nytr checks `SystemLanguageModel` availability and degrades
   gracefully. **Not every iPhone supports Apple Intelligence.**
 - Deterministic Nytr analysis is shown first and remains the authority for every number.
-- A provider-neutral cloud port also exists but is **disabled by default** and is
-  equally non-authoritative.
+- A server-side Gemini adapter also exists behind the same typed port. It is
+  **disabled by default**, the shipped iOS screens do not call it, and it is equally
+  non-authoritative. See [AI architecture](docs/LLM_ARCHITECTURE.md).
 
 ---
 
@@ -276,8 +279,10 @@ FastAPI, the database driver, and any provider SDK.
 **Engineering practices**
 
 - Strict `mypy`, `Ruff` lint and format across the backend
-- ~1,000 backend tests and ~250 iOS tests, including render and appearance regression
-  tests
+- 1,135 backend tests: 1,124 pass in CI against Postgres; 11 skip because they need
+  private dining fixtures that this repository does not ship
+- 251 iOS XCTest cases, including render and appearance regression tests (run in Xcode;
+  not part of CI yet)
 - Versioned policies (`barcode-food-import.v3`,
   `next-meal.remaining-opportunities.v2`) so behaviour changes are explicit and
   historical records stay reproducible
@@ -288,19 +293,29 @@ FastAPI, the database driver, and any provider SDK.
 ## Local setup
 
 ```bash
-cp .env.example .env
-
 cd backend
 python -m venv .venv
-.venv/bin/pip install -e '.[dev]'
-.venv/bin/pytest
+.venv/bin/pip install -e '.[dev,db]'
 .venv/bin/ruff check src tests
+.venv/bin/ruff format --check src tests
 .venv/bin/mypy
+.venv/bin/pytest
 ```
 
-No credentials are needed for the test suite. Database-backed integration tests skip
-unless `STACKS_TEST_DATABASE_URL` points at a scratch Postgres, and institutional
-ingestion is disabled by default.
+These are the same checks that [CI](.github/workflows/ci.yml) runs. No credentials are
+needed for the test suite. Database-backed integration tests skip unless
+`STACKS_TEST_DATABASE_URL` points at a scratch Postgres (for example
+`postgresql://postgres:postgres@localhost:5432/nytr_test`). Institutional ingestion is
+disabled by default.
+
+To run the API locally, copy `.env.example` to `.env`, fill in local values, and start
+it from `backend/`:
+
+```bash
+.venv/bin/uvicorn nutrition_agent.api.app:create_health_app --factory --env-file ../.env
+```
+
+The tests do not read `.env`.
 
 For iOS, generate the Xcode project from
 `ios/NutritionHealthCompanion/Project/project.yml` (via
@@ -376,7 +391,7 @@ Store release exists today.
 
 ## Project status
 
-Production-validated personal project; this public repository contains a sanitized,
+Personal student project, built in 2026. This public repository contains a sanitized,
 reproducible version of the codebase.
 
 Nytr is an independent student project and is not affiliated with or endorsed by The
@@ -386,6 +401,7 @@ Further reading: [architecture notes](docs/ARCHITECTURE.md) ·
 [nutrition engine](docs/NUTRITION_ENGINE.md) ·
 [dining integration boundary](docs/STACKS_DISCOVERY.md) ·
 [AI architecture](docs/LLM_ARCHITECTURE.md) ·
+[project notes](docs/PROJECT_NOTES.md) ·
 [Body & Goals](docs/BODY_GOALS.md) ·
 [security and privacy](SECURITY.md) ·
 [contributing](CONTRIBUTING.md)
