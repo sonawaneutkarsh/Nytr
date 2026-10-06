@@ -14,15 +14,16 @@ progress views, and optional AI explanations.
 - Implemented privacy-conscious HealthKit and official Hevy ingestion with idempotent sync,
   tombstones, PostgreSQL Row Level Security, narrow append-only privileges, and deterministic
   body-weight/training analytics that fail closed on stale or partial evidence.
-- Added an owner-triggered Gemini review behind a provider-neutral port using a minimized
-  allowlisted snapshot, bounded structured output, no AI persistence, and typed degradation;
-  deterministic Python remains authoritative for every number and decision.
+- Added an owner-triggered AI review that runs on device with Apple Foundation Models over a
+  minimized allowlisted snapshot (an optional server-side Gemini adapter sits behind the same
+  typed port, disabled by default); output is bounded, never persisted, and deterministic
+  Python remains authoritative for every number and decision.
 
 ## Key technologies
 
 Python 3.11+, FastAPI, Pydantic, PostgreSQL/Supabase, psycopg, pytest, mypy, Ruff,
-Swift 5.10, SwiftUI, Swift Charts, HealthKit, Keychain, Xcode/XCTest, Docker, Render,
-GitHub Actions, Hevy REST API, and Gemini Developer API.
+Swift 5.10, SwiftUI, Swift Charts, HealthKit, Foundation Models, Keychain, Xcode/XCTest,
+Docker, GitHub Actions, Hevy REST API, and (optional, server-side) Gemini API.
 
 ## Engineering highlights
 
@@ -49,8 +50,9 @@ GitHub Actions, Hevy REST API, and Gemini Developer API.
 4. **Why two training lanes?** HealthKit is the high-level workout authority available on
    device; Hevy provides richer set detail. Without a shared identity, automatic fuzzy linking
    would manufacture certainty.
-5. **Where does AI fit?** Downstream of deterministic state. Gemini improves explanation, not
-   arithmetic, eligibility, target policy, or persistence.
+5. **Where does AI fit?** Downstream of deterministic state. On-device Foundation Models (or the
+   optional Gemini adapter) improves explanation, not arithmetic, eligibility, target policy, or
+   persistence.
 
 ## Architectural tradeoffs
 
@@ -73,7 +75,7 @@ GitHub Actions, Hevy REST API, and Gemini Developer API.
 - HealthKit deletions become tombstones; retries are idempotent and cannot resurrect facts.
 - User-owned tables use RLS; authenticated roles cannot UPDATE or DELETE immutable history
   except the single constrained tombstone transition where required.
-- Gemini receives no PII, raw health/workout history, source identifiers, food/exercise text,
+- The AI review input (on device, or Gemini when enabled) contains no PII, raw health/workout history, source identifiers, food/exercise text,
   or tokens; invalid, numeric, refused, timed-out, or unavailable output becomes a typed
   non-blocking failure.
 - No claim is made that recorded nutrition is complete intake, that progress is causal, or

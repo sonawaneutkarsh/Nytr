@@ -49,7 +49,7 @@ final class AdapterMappingTests: XCTestCase {
 
     func test_typicalWeights_threeDecimalPlaces() {
         XCTAssertEqual(q(70), "70.000")
-        XCTAssertEqual(q(149.7 * 0.45359237), "67.903")  // PROJECT_CONTEXT Aug 9-15 avg in kg
+        XCTAssertEqual(q(149.7 * 0.45359237), "67.903")  // lb -> kg conversion, 3 dp
     }
 
     func test_workoutDurationAndEnergyMappingUsesExactThreePlaceDecimalStrings() {

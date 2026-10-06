@@ -6,8 +6,9 @@
 - Body profile height is explicit owner data; waist evidence is timestamped,
   owner-entered, append-only, and never a body-fat or calorie authority.
 - Starting calories use the bounded deterministic policy documented in
-  `docs/REQUIREMENTS.md`; the result is an estimate until explicitly approved.
+  `docs/BODY_GOALS.md`; the result is an estimate until explicitly approved.
 - Deterministic calculations own nutrition, trends, eligibility, and coaching.
-- AI is optional, server-side, privacy-minimized, structured, and explanatory;
-  it cannot write facts or targets.
+- AI is optional, privacy-minimized, structured, and explanatory. The app uses
+  on-device Apple Foundation Models; a server-side Gemini adapter exists but is
+  disabled by default. AI cannot write facts or targets.
 - Public fixtures are synthetic and no live provider scheduler is distributed.

@@ -19,10 +19,11 @@ Nytr's AI explanation layer is optional and never authoritative.
   `Support/OnDeviceReview.swift`, gated on `SystemLanguageModel` availability. No
   evidence leaves the device and no third-party API key is required. Debug output
   records only a fixed failure category, never prose, prompts, or identity.
-- **Cloud (opt-in, disabled by default).** A provider-neutral port can send the
-  bounded aggregate snapshot described in `docs/LLM_ARCHITECTURE.md`. It is off
-  unless `GEMINI_AI_REVIEW_ENABLED` is explicitly set, is non-authoritative, and
-  its output is not persisted as fact.
+- **Server-side Gemini (opt-in, disabled by default).** The backend has a Gemini
+  adapter behind `POST /v1/review/current` that can send the bounded aggregate
+  snapshot described in `docs/LLM_ARCHITECTURE.md`. It is off unless
+  `GEMINI_AI_REVIEW_ENABLED=true`, the shipped iOS screens do not call it, it is
+  non-authoritative, and its output is not persisted as fact.
 
 Either way, deterministic Nytr analysis remains the source of every number.
 
